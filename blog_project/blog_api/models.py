@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -17,3 +18,19 @@ class Post(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class Subscription(models.Model):
+    subscriber = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subscriptions')
+    blog = models.ForeignKey('Blog', on_delete=models.CASCADE, related_name='subscribers')
+    subscribed_at = models.DateTimeField(auto_now_add=True)
+
+    def clean(self):
+        if self.subscriber == self.blog.owner:
+            raise ValidationError("You cannot subscribe to your own blog.")
+
+    def __str__(self):
+        return f'{self.subscriber} subscribe to {self.blog.owner}'
+
+    class Meta:
+        unique_together = ['subscriber', 'blog']
