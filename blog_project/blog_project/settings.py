@@ -1,4 +1,22 @@
 from pathlib import Path
+import os
+from celery import Celery
+from celery.schedules import crontab
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'blog_project.settings')
+
+app = Celery('blog_project')
+
+app.config_from_object('django.conf:settings', namespace='CELERY')
+
+app.autodiscover_tasks()
+
+app.conf.beat_schedule = {
+    'send_daily_email': {
+        'task': 'blog_api.tasks.send_daily_email',
+        'schedule': crontab(minute=0, hour=0),  # Каждый день в полночь
+    },
+}
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
