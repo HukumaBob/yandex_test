@@ -34,3 +34,11 @@ class Subscription(models.Model):
 
     class Meta:
         unique_together = ['subscriber', 'blog']
+
+
+class NewsFeed(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='news_feed')
+    posts = models.ManyToManyField(Post, related_name='news_feeds')
+
+    def __str__(self):
+        return f'News feed of {self.user}'
