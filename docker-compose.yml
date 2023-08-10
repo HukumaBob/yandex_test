@@ -13,7 +13,7 @@ services:
       - pg_data:/var/lib/postgresql/data
   backend:
     env_file: .env
-    build: ./backend/
+    image: hukumabob/blog_backend
     volumes:
       - static:/backend_static
       - media:/app/media/
@@ -21,7 +21,7 @@ services:
       - db
   gateway:
     env_file: .env
-    build: ./nginx/
+    image: hukumabob/blog_gateway
     ports:
       - 8000:80
     volumes:

@@ -4,13 +4,10 @@ from pathlib import Path
 from celery import Celery
 from celery.schedules import crontab
 
-# Создание экземпляра Celery
 app = Celery('blog_project')
 
-# Настройки Celery
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
-# Автоматическое обнаружение и регистрация задач
 app.autodiscover_tasks()
 
 CELERY_BROKER_URL = 'redis://localhost:6379'
@@ -19,7 +16,7 @@ CELERY_TIMEZONE = 'UTC'
 CELERY_BEAT_SCHEDULE = {
     'send_daily_post_summary': {
         'task': 'blog_api.tasks.send_daily_post_summary',
-        'schedule': crontab(minute='*/1'),
+        'schedule': crontab(minute=0, hour=0),
     },
 }
 
@@ -137,7 +134,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'static'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
