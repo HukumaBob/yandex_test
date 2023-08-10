@@ -1,8 +1,27 @@
+import os
 from pathlib import Path
 
-CELERY_BROKER_URL = 'redis://localhost:6379/0'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+from celery import Celery
+from celery.schedules import crontab
+
+# Создание экземпляра Celery
+app = Celery('blog_project')
+
+# Настройки Celery
+app.config_from_object('django.conf:settings', namespace='CELERY')
+
+# Автоматическое обнаружение и регистрация задач
+app.autodiscover_tasks()
+
+CELERY_BROKER_URL = 'redis://localhost:6379'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379'
 CELERY_TIMEZONE = 'UTC'
+CELERY_BEAT_SCHEDULE = {
+    'send_daily_post_summary': {
+        'task': 'blog_api.tasks.send_daily_post_summary',
+        'schedule': crontab(minute='*/1'),
+    },
+}
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -18,7 +37,10 @@ SECRET_KEY = 'django-insecure-d$ies)mr2ook#)vnnyn$ingmiq&2pfprz3f8c-ha(o21(5bpac
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+if DEBUG:
+    CELERY_ALWAYS_EAGER = True
+
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', default='*').split(' ')
 
 
 # Application definition
@@ -72,11 +94,11 @@ WSGI_APPLICATION = 'blog_project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'blog_db_name',
-        'USER': 'postgres',
-        'PASSWORD': '1234',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': os.getenv('POSTGRES_DB', 'blog_db_name'),
+        'USER': os.getenv('POSTGRES_USER', 'postgres'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD', '1234'),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv('DB_PORT', 5432)
     }
 }
 
@@ -126,4 +148,12 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,
 }
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+
+# EMAIL_FILE_PATH = BASE_DIR / 'sent_emails'
+
+EMAIL_ADMIN = 'admin@admin.com'
 
