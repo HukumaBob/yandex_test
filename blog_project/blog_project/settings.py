@@ -150,11 +150,12 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10,
 }
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-# EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 
-# EMAIL_FILE_PATH = BASE_DIR / 'sent_emails'
+EMAIL_FILE_PATH = BASE_DIR / 'sent_emails'
+print(EMAIL_FILE_PATH)
 
 EMAIL_ADMIN = 'admin@admin.com'
 

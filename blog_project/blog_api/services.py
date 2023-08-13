@@ -1,14 +1,14 @@
-from django.conf import settings
-from django.contrib.auth.models import User
-from celery import shared_task
-from django.core.mail import send_mail
 import logging
-from services import send_daily_post_summary
+
+from django.conf import settings
+from django.core.mail import send_mail
+from django.contrib.auth.models import User
+
+from blog_api.models import NewsFeed
 
 logger = logging.getLogger(__name__)
 
 
-@shared_task
 def send_daily_post_summary():
     logger.info('Sending daily post summary email...')
     users = User.objects.filter(news_feed__isnull=False)
@@ -21,7 +21,5 @@ def send_daily_post_summary():
         message = '\n'.join([f'{post.title}: {post.text}' for post in recent_posts])
         from_email = settings.EMAIL_ADMIN
         recipient_list = [user.email]
-
-        send_mail(subject, message, from_email, recipient_list, fail_silently=False)
 
         send_mail(subject, message, from_email, recipient_list, fail_silently=False)
